@@ -3,6 +3,9 @@ from django import forms
 from .models import *
 from django.forms import widgets
 
+# Authentication & Authorization
+from django.contrib.auth.forms import UserCreationForm
+
 
 class NotesForm(forms.ModelForm):
     class Meta:
@@ -25,42 +28,6 @@ class TodoForm(forms.ModelForm):
         model = Todo
         fields = ['title', 'is_finished']
 
-class ConversionForm(forms.Form):
-    CHOICES = [
-        ('length', 'Length'),
-        ('mass', 'Mass')
-    ]
-    measurement = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect)
-
-class ConversionLengthForm(forms.Form):
-    CHOICES = [
-        ('yard', 'Yard'),
-        ('foot', 'Foot')
-    ]    
-    input = forms.CharField(required=False,label=False, widget=forms.TextInput(
-        attrs={
-            'type':'number',
-            'placeholder':'Enter a Number'
-        }
-    )) 
-    measure1 = forms.CharField(label='', widget=forms.Select(choices=CHOICES))
-    measure2 = forms.CharField(label='', widget=forms.Select(choices=CHOICES))
-
-class ConversionMassForm(forms.Form):
-    CHOICES = [
-        ('pound', 'Pound'),
-        ('kilogram', 'Kilogram')
-    ]    
-    input = forms.CharField(required=False,label=False, widget=forms.TextInput(
-        attrs={
-            'type':'number',
-            'placeholder':'Enter a Number'
-        }
-    )) 
-    measure1 = forms.CharField(label='', widget=forms.Select(choices=CHOICES))
-    measure2 = forms.CharField(label='', widget=forms.Select(choices=CHOICES))
-
-
 
 class YoutubeSearchForm(forms.Form):
     text = forms.CharField(max_length=255, label="Search youtube video")
@@ -75,4 +42,51 @@ class DictionarySearchForm(forms.Form):
 class WikiSearchForm(forms.Form):
     text = forms.CharField(max_length=255, label="Search in Wikipedia")
 
+# This form makes a user choose two choices (Length or Mass)
+class ConversionForm(forms.Form):
+    CHOICES = [
+        ('length', 'Length'),
+        ('mass', 'Mass')
+    ]
+    measurement = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect)
 
+# This form makes a user choose between length conversion rates i.e (yard or foot)
+class ConversionLengthForm(forms.Form):
+    CHOICES = [
+        ('yard', 'Yard'),
+        ('foot', 'Foot')
+    ]   
+    # A user enters a number they want to be converted 
+    input = forms.CharField(required=False,label=False, widget=forms.TextInput(
+        attrs={
+            'type':'number',
+            'placeholder':'Enter a Number'
+        }
+    )) 
+    # Specifies type of length
+    measure1 = forms.CharField(label='', widget=forms.Select(choices=CHOICES))
+    # Specifies type of length
+    measure2 = forms.CharField(label='', widget=forms.Select(choices=CHOICES))
+
+# Here the form is for a user to choose between Mass conversion rates(Pounds & Kilograms)
+class ConversionMassForm(forms.Form):
+    CHOICES = [
+        ('pound', 'Pound'),
+        ('kilogram', 'Kilogram')
+    ]   
+    # User enters a number to be converted 
+    input = forms.CharField(required=False,label=False, widget=forms.TextInput(
+        attrs={
+            'type':'number',
+            'placeholder':'Enter a Number'
+        }
+    )) 
+    measure1 = forms.CharField(label='', widget=forms.Select(choices=CHOICES))
+    measure2 = forms.CharField(label='', widget=forms.Select(choices=CHOICES))
+
+
+
+class RegistrationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['username','password1', 'password2' ]

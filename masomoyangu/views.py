@@ -4,6 +4,8 @@ from .models import *
 from .forms import *
 from django.contrib import messages
 from django.views import generic
+# Authentication Decorators
+from django.contrib.auth.decorators import login_required
 #YouTube Search Library
 from youtubesearchpython import VideosSearch
 # For APIs
@@ -12,10 +14,31 @@ import requests
 import wikipedia
 
 
+def registration(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # After form is saved, django will validate the username using the command below
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Account for {username} created successfully')
+            return redirect('login')
+    else:
+        form = RegistrationForm()
+    context = {
+        'form':form
+    }   
+    return render(request, 'masomoyangu/register.html', context)
+
+# def login(request):
+#     return render(request, 'masomoyangu/login.html')
+
+
 def home(request):
     return render(request, 'masomoyangu/home.html')
 
 # NOTES
+@login_required
 def notes(request):
     form = NotesForm()
     # Create Notes Form
@@ -38,15 +61,17 @@ def notes(request):
 
 # Generic view 
 # Lists down the details of the Notes created
+
 class NotesDetailView(generic.DetailView):
     model = Notes
 
-
+@login_required
 def delete_note(request, pk):
     Notes.objects.get(id=pk).delete()
     return redirect('notes')
 
 # HOMEWORK
+@login_required
 def homework(request):
     if request.method == 'POST':
         form= HomeworkForm(request.POST)
@@ -78,18 +103,18 @@ def homework(request):
     homeworks = Homework.objects.filter(user=request.user)
     # if the number of homework objects is 0 then it means they are completed
     if len(homeworks) == 0:
-        homeworks_done = True
+        homework_done = True
     # if the number of homeworks is 1 or more then they are incomplete
     else:
-        homeworks_done = False
+        homework_done = False
     context = {
         'homeworks':homeworks,
-        'homeworks_done':homeworks_done,
+        'homework_done':homework_done,
         'form':form,
     }
     return render(request, 'masomoyangu/homework.html', context)
 
-
+@login_required
 def update_homework(request, pk=None):
     homework = Homework.objects.get(id=pk)
     # if the status checkbox is ticked then changed then the assignment is completed
@@ -100,11 +125,13 @@ def update_homework(request, pk=None):
     homework.save()
     return redirect('homework')
 
+@login_required
 def delete_homework(request, pk):
     Homework.objects.get(id=pk).delete()
     return redirect('homework')
 
 # YOUTUBE
+@login_required
 def youtube(request):
     if request.method == 'POST':
         form = YoutubeSearchForm(request.POST)
@@ -144,6 +171,7 @@ def youtube(request):
 
 
 #TODO
+@login_required
 def todo(request):
     if request.method == 'POST':
         form= TodoForm(request.POST)
@@ -181,6 +209,7 @@ def todo(request):
     }
     return render(request, 'masomoyangu/todo.html', context)
 
+@login_required
 def update_todo(request, pk):
     todo = Todo.objects.get(id=pk)
     # if the status checkbox is ticked then the assignment is completed
@@ -197,6 +226,7 @@ def delete_todo(request, pk):
 
 
 #BOOKS
+@login_required
 def books(request):
     form = BookSearchForm()
     if request.method == 'POST':
@@ -235,6 +265,8 @@ def books(request):
     }
     return render(request, 'masomoyangu/books.html',  context)
 
+# DICTIONARY
+@login_required
 def dictionary(request):
     form = DictionarySearchForm()
     if request.method == 'POST':
@@ -276,7 +308,8 @@ def dictionary(request):
         }
     return render(request, 'masomoyangu/dictionary.html', context)
 
-
+# WIKI
+@login_required
 def wiki(request):
     form = WikiSearchForm()
     if request.method =='POST':
@@ -299,33 +332,41 @@ def wiki(request):
         }
     return render(request, 'masomoyangu/wiki.html', context)
 
-
+# CONVERSION
+@login_required
 def conversion(request):
     if request.method == 'POST':
+        # Form to choose either Length or Mass
         form = ConversionForm(request.POST)
+        # when the measurement field choice is length
         if request.POST['measurement'] == 'length':
+            # name of form
             measurement_form = ConversionLengthForm()
             context = {
                 'form':form,
                 'measurement_form':measurement_form,
                 'input':True
             }
+            # if there is a number inputed in the form
             if 'input' in request.POST:
+                input = request.POST['input']
                 first = request.POST['measure1']
                 second = request.POST['measure2']
-                input = request.POST['input']
+                # answer is an empty string at first
                 answer = ''
+                # if an integer input has been entered and is greater than 0
                 if input and int(input) >= 0:
                     if first =='yard' and second == 'foot':
                         answer = f"{input} yard = {int(input)*3} foot"
                     if first == 'foot' and second == 'yard':
-                        answer = f"{input} yard = {int(input)/3} foot"
+                        answer = f"{input} foot = {int(input)/3} yard"
                 context ={
                     'form':form,
                     'measurement_form':measurement_form,
                     'input':True,
                     'answer':answer
                 }
+        # when the measurement field choice is mass
         if request.POST['measurement'] == 'mass':
             measurement_form = ConversionMassForm()
             context = {
@@ -333,10 +374,11 @@ def conversion(request):
                 'measurement_form':measurement_form,
                 'input':True
             }
+            # if a  number is entered in the form
             if 'input' in request.POST:
+                input = request.POST['input']
                 first = request.POST['measure1']
                 second = request.POST['measure2']
-                input = request.POST['input']
                 answer = ''
                 if input and int(input) >= 0:
                     if first =='pound' and second == 'kilogram':
