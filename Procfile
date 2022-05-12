@@ -1,0 +1,1 @@
+web: gunicorn masomoyanguportal.wsgi --log-file -
