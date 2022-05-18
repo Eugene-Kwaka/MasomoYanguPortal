@@ -11,7 +11,7 @@ A study portal to manage my studies. Contains notes and references for revisions
 
 ## Background
 This project is a student's study portal where they can track their Notes, Homework Assignments, and Todo lists. They can also research for references in Youtube, Wikipedia, Google Books and measurements.
-The project applies Django's MVT(Model View Templates) architecture. It has a CRUD (Create Read Update Delete) application written with Function-Based Views (FBV) with focus on core fundamentals and whose use is easy to read, understand and implement.
+The project applies Django's MVT(Model View Templates) architecture and consumes APIs using django-requests. It has a CRUD (Create Read Update Delete) application written with Function-Based Views (FBV) with focus on core fundamentals which are easy to read, understand and implement.
 
 ## Minimum Requirements
 This project supports Ubuntu Linux 20.04 and Windows OS with their previous stable releases. It has not been tested on Mac OS.
